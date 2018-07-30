@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "792203034674",
+    "firebase_url": "https://synced-journal.firebaseio.com",
+    "project_id": "synced-journal",
+    "storage_bucket": "synced-journal.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:792203034674:android:b012e9d6b47f0c4d",
+        "android_client_info": {
+          "package_name": "com.example.nnuzaba47.syncedjournal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "792203034674-asi9c36ud5gof7l4vtt13f8s66f8isdv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.nnuzaba47.syncedjournal",
+            "certificate_hash": "2bf8a651e8501975d874d89672152cf04dfcb0a4"
+          }
+        },
+        {
+          "client_id": "792203034674-ppp3rrrgqn48sh4anem6elkieciucn5g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcLoIvJdNuCE69THgs2mmvqnqH0TYskQg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "792203034674-ppp3rrrgqn48sh4anem6elkieciucn5g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
