@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:onClick="showEntry"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="296dp"
+        android:layout_height="54dp"
+        android:layout_weight="0"
+        android:text="Entry Title"
+        android:textSize="25sp" />
+
+    <TextView
+        android:id="@+id/tvDate"
+        android:layout_width="88dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:text="TextView" />
+
+</LinearLayout>
