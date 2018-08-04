@@ -11,25 +11,22 @@ import android.os.AsyncTask
 import java.util.*
 
 
-@Database(entities = [(Entry::class)], version = 2)
+@Database(entities = [(Entry::class), (Post::class)], version = 12, exportSchema = false)
 @TypeConverters(Converters::class)
-abstract class EntryDatabase : RoomDatabase() {
+abstract class MyDatabase : RoomDatabase() {
 
     abstract fun entryDao(): EntryDao
-
-
+    abstract fun postDao(): PostDao
 
     companion object {
-        private var INSTANCE: EntryDatabase? = null
+        private var INSTANCE: MyDatabase? = null
 
-        fun getDatabase(context: Context): EntryDatabase? {
+        fun getDatabase(context: Context): MyDatabase? {
             if (INSTANCE == null) {
-                synchronized(EntryDatabase::class.java) {
+                synchronized(MyDatabase::class.java) {
                     if (INSTANCE == null) {
                         INSTANCE = Room.databaseBuilder(context.applicationContext,
-                                EntryDatabase::class.java, "entry_database").allowMainThreadQueries()
-                                // Wipes and rebuilds instead of migrating if no Migration object.
-                                // Migration is not part of this codelab.
+                                MyDatabase::class.java, "database").allowMainThreadQueries()
                                 .fallbackToDestructiveMigration()
                                 .build()
                     }
@@ -37,14 +34,7 @@ abstract class EntryDatabase : RoomDatabase() {
             }
             return INSTANCE
         }
-
-        /**
-         * Override the onOpen method to populate the database.
-         * For this sample, we clear the database every time it is created or opened.
-         */
-
     }
-
     }
 
 

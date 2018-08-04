@@ -8,13 +8,13 @@ interface EntryDao {
     @Query("SELECT * FROM entryTable")
     fun getAll():LiveData<List<Entry>>
     @Query("SELECT * FROM entryTable WHERE id IN (:entryIds)")
-    fun loadAllByIds(entryIds:IntArray):List<Entry>
+    fun loadAllByIds(entryIds:LongArray):List<Entry>
     @Query("SELECT * FROM entryTable WHERE id = (:entryId)")
-    fun loadById(entryId: Int?):Entry
+    fun loadById(entryId: Long?):Entry
     @Insert
     fun insertAll(vararg entries:Entry)
     @Insert
-    fun insert(entry:Entry)
+    fun insert(entry:Entry):Long
     @Delete
     fun delete(entry:Entry)
     @Update

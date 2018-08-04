@@ -21,7 +21,7 @@ class EntryRepository{
      * @param application The current application
      */
     constructor(application: Application) {
-        var db:EntryDatabase ?= EntryDatabase.getDatabase(application.applicationContext)
+        var db:MyDatabase ?= MyDatabase.getDatabase(application.applicationContext)
         mEntryDao = db!!.entryDao()
         allEntries = mEntryDao!!.getAll()
     }
@@ -46,7 +46,7 @@ class EntryRepository{
         return allEntries
     }
 
-    fun getEntryById(id: Int): Entry?{
+    fun getEntryById(id: Long): Entry?{
         loadEntryAsyncTask(mEntryDao).execute(id)
         return mEntry
     }
@@ -70,8 +70,8 @@ class EntryRepository{
         }
     }
 
-    inner class loadEntryAsyncTask internal constructor(private val mAsyncTaskDao: EntryDao) : AsyncTask<Int, Void, Void>() {
-        override fun doInBackground(vararg params: Int?): Void? {
+    inner class loadEntryAsyncTask internal constructor(private val mAsyncTaskDao: EntryDao) : AsyncTask<Long, Void, Void>() {
+        override fun doInBackground(vararg params: Long?): Void? {
             mEntry = mAsyncTaskDao.loadById(params[0])
             return null
         }

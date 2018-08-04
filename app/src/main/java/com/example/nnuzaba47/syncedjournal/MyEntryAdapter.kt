@@ -1,15 +1,9 @@
 package com.example.nnuzaba47.syncedjournal
-
-import android.arch.lifecycle.ViewModel
 import android.content.Context
-import android.os.Parcel
-import android.os.Parcelable
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.ImageView
 import android.widget.TextView
 import java.text.SimpleDateFormat
 
@@ -53,15 +47,8 @@ class MyEntryAdapter: RecyclerView.Adapter<MyEntryAdapter.EntryViewHolder>{
 
 
     class EntryViewHolder(itemView:View):RecyclerView.ViewHolder(itemView) {
-        var title:TextView
-        var date:TextView
-
-        init{
-            title = itemView.findViewById(R.id.tvTitle) as TextView
-            date = itemView.findViewById(R.id.tvDate) as TextView
-        }
-
-
+        var title:TextView = itemView.findViewById(R.id.tvTitle) as TextView
+        var date:TextView = itemView.findViewById(R.id.tvDate) as TextView
     }
 }
 

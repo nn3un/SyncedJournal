@@ -27,7 +27,7 @@ class EntryViewModel : AndroidViewModel{
         mRepository.insert(entry)
     }
 
-    fun getAllWords(): LiveData<List<Entry>> {
+    fun getAllEntries(): LiveData<List<Entry>> {
         return allEntries
     }
 
@@ -35,7 +35,7 @@ class EntryViewModel : AndroidViewModel{
         mRepository.update(entry)
     }
 
-    fun getById(id: Int):Entry?{
+    fun getById(id: Long):Entry?{
         return mRepository.getEntryById(id)
     }
 

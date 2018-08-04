@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
-import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_entries.*
 import java.util.*
 
@@ -19,10 +18,6 @@ class EntriesActivity : AppCompatActivity() {
     var context: Context =this
 
     private var mEntryViewModel:EntryViewModel?=null
-
-    companion object {
-        var NEW_ENTRY_ACTIVITY_REQUEST_CODE = 1
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +31,7 @@ class EntriesActivity : AppCompatActivity() {
         mEntryViewModel = ViewModelProviders.of(this).get(EntryViewModel::class.java)
 
 
-        mEntryViewModel!!.getAllWords().observe(this, Observer<List<Entry>>{
+        mEntryViewModel!!.getAllEntries().observe(this, Observer<List<Entry>>{
             adapter.setEntries(it!!)
         })
 
@@ -44,6 +39,7 @@ class EntriesActivity : AppCompatActivity() {
 
     fun newEntry(view: View){
         startActivity(Intent(applicationContext, NewEntryActivity::class.java))
+        finish()
     }
 
 
@@ -56,5 +52,6 @@ class EntriesActivity : AppCompatActivity() {
         var intent = Intent(applicationContext, ShowActivity::class.java)
         intent.putExtra("entryId", entry!!.id)
         startActivity(intent)
+        finish()
     }
 }

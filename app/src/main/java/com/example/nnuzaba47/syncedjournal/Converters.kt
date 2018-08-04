@@ -1,6 +1,8 @@
 package com.example.nnuzaba47.syncedjournal
 
 import android.arch.persistence.room.TypeConverter
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.util.*
 
 class Converters {
@@ -11,6 +13,18 @@ class Converters {
 
     @TypeConverter
     fun dateToTimestamp(date: Date?): Long? {
-        return (if (date == null) null else date!!.time.toLong())
+        return (if (date == null) null else date!!.time)
+    }
+
+    @TypeConverter
+    fun fromString(value: String): ArrayList<Int> {
+        val listType = object : TypeToken<ArrayList<Int>>(){}.type
+        return Gson().fromJson(value, listType)
+    }
+
+    @TypeConverter
+    fun fromArrayList(list: ArrayList<Int>): String {
+        val gson = Gson()
+        return gson.toJson(list)
     }
 }
