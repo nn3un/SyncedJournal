@@ -23,7 +23,7 @@ class PostViewModel : AndroidViewModel {
         return allPosts
     }
 
-    fun getAllPostsForEntryId(entryId: Long): LiveData<List<Post>>{
+    fun getAllPostsForEntryId(entryId: Long): List<Post>{
         return mRepository.getPostsByEntryId(entryId)!!
     }
 

@@ -12,9 +12,9 @@ interface PostDao {
     @Query("SELECT * FROM postTable WHERE postId = (:postId)")
     fun loadById(postId: Int?):Post
     @Query("SELECT * FROM postTable WHERE entryId=:entryId")
-    fun loadPostsForEntry(entryId: Long): LiveData<List<Post>>
+    fun loadPostsForEntry(entryId: Long): List<Post>
     @Insert
-    fun insert(post:Post)
+    fun insert(post:Post):Long
     @Delete
     fun delete(post:Post)
     @Update

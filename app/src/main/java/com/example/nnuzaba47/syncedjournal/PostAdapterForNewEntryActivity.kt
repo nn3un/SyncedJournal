@@ -24,7 +24,6 @@ class PostAdapterForNewEntryActivity: RecyclerView.Adapter<PostAdapterForNewEntr
         mInflater = LayoutInflater.from(context)
     }
 
-    //TODO make sure to remove viewholder from postviewholder
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val item = items[position]
         holder.sourceURL.text = item.sourceURL
@@ -32,10 +31,18 @@ class PostAdapterForNewEntryActivity: RecyclerView.Adapter<PostAdapterForNewEntr
         var asyncTask = holder.SetImageInBackground()
         asyncTask.execute(item.imageURL)
         postToDescriptionMap[item] = holder.description
-        holder.deleteNewPost.setOnClickListener(){
-            postToDescriptionMap.remove(items.removeAt(position))
-            notifyItemRemoved(position)
-            notifyItemRangeChanged(position, items.size)
+        holder.deleteNewPost.setOnClickListener{
+            var index = items.indexOf(item)
+            if(index+1 < items.size){
+                for (ind in index+1 until items.size){
+                    var itemAtInd = items[ind]
+                    itemAtInd.description = postToDescriptionMap[itemAtInd]!!.text.toString()
+                }
+            }
+            MyDatabase.getDatabase(holder.itemView.context)!!.postDao().delete(items!!.removeAt(index))
+            notifyItemRemoved(index)
+            notifyItemRangeChanged(index, items.size)
+            postToDescriptionMap.remove(item)
         }
     }
 

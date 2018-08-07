@@ -4,6 +4,8 @@ import android.graphics.BitmapFactory
 import android.os.AsyncTask
 import android.support.design.widget.FloatingActionButton
 import android.support.v7.widget.RecyclerView
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,27 +18,40 @@ import java.text.SimpleDateFormat
 
 class PostAdapterForEditActivity: RecyclerView.Adapter<PostAdapterForEditActivity.PostViewHolder> {
 
-    var items: ArrayList<Post>? = ArrayList()
+    var items: ArrayList<Post> = ArrayList()
     private val mInflater: LayoutInflater
-    var postToDescriptionMap = HashMap<Post, EditText>()
+    var postIdToDescriptionMap = HashMap<Long, EditText>()
 
     constructor(context: Context) {
         mInflater = LayoutInflater.from(context)
     }
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        val item = items!![position]
+        val item = items[position]
         holder.sourceURL.text = item.sourceURL
         holder.description.setText(item.description)
+
+        holder.description.addTextChangedListener(object : TextWatcher{
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                item.description = p0.toString()
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+
+            override fun afterTextChanged(editable: Editable?) {
+            }
+
+        })
         var asyncTask = holder.SetImageInBackground()
         asyncTask.execute(item.imageURL)
-        postToDescriptionMap[item] = holder.description
+        postIdToDescriptionMap[item.postId!!] = holder.description
         holder.deleteNewPost.setOnClickListener{
-            var index = items!!.indexOf(item)
-            MyDatabase.getDatabase(holder.itemView.context)!!.postDao().delete(items!!.removeAt(index))
+            var index = items.indexOf(item)
+            items!!.removeAt(index)
             notifyItemRemoved(index)
-            notifyItemRangeChanged(index, items!!.size)
-            postToDescriptionMap.remove(items!!.removeAt(position))
+            notifyItemRangeChanged(index, items.size)
+            postIdToDescriptionMap.remove(item.postId!!)
         }
     }
 
@@ -46,7 +61,7 @@ class PostAdapterForEditActivity: RecyclerView.Adapter<PostAdapterForEditActivit
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): PostViewHolder {
-        val v = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_ticket, parent, false)
+        val v = LayoutInflater.from(parent.context).inflate(R.layout.post_ticket, parent, false)
         return PostViewHolder(v)
     }
 
@@ -62,8 +77,14 @@ class PostAdapterForEditActivity: RecyclerView.Adapter<PostAdapterForEditActivit
         notifyDataSetChanged()
     }
 
+    fun add(post: Post){
+        var position = items.size
+        items.add(post)
+        notifyItemInserted(position)
+        notifyItemRangeChanged(position, items.size)
+    }
 
-    public class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var sourceURL: TextView = itemView.findViewById(R.id.tvShowPostURL) as TextView
         var description: EditText = itemView.findViewById(R.id.etPostDescription) as EditText
         var picture: ImageView = itemView.findViewById(R.id.ivPostPicture)

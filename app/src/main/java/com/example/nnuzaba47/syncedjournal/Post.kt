@@ -8,7 +8,7 @@ import android.arch.persistence.room.PrimaryKey
 @Entity(tableName = "postTable", foreignKeys = [ForeignKey(entity = Entry::class, parentColumns = arrayOf("id"), childColumns = arrayOf("entryId"), onDelete = CASCADE)])
 class Post {
     @PrimaryKey(autoGenerate = true)
-    var postId: Int ?= null
+    var postId: Long ?= null
     var sourceURL: String?
     var description: String?
     var imageURL: String?

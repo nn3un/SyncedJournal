@@ -11,6 +11,15 @@
     tools:context=".NewEntryActivity">
 
     <EditText
+        android:id="@+id/etNewEntryDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="date"
+        android:onClick="setDate"
+        android:focusable="false"/>
+
+    <EditText
         android:id="@+id/etNewEntryTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

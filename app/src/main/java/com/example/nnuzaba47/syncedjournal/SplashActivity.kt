@@ -5,6 +5,18 @@ import android.content.SharedPreferences
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.app.NotificationManager
+import android.app.NotificationChannel
+import android.os.Build
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.icu.util.DateInterval
+import android.support.v4.app.NotificationManagerCompat
+import android.util.Log
+import java.util.*
+
 
 class SplashActivity : AppCompatActivity() {
 
@@ -19,7 +31,6 @@ class SplashActivity : AppCompatActivity() {
         var handler:Handler = Handler()
         handler.postDelayed(object: Runnable{
             override fun run(){
-
                 if(password.equals("")){
                     var intent: Intent = Intent(applicationContext, CreatePasswordActivity::class.java)
                     startActivity(intent)
@@ -33,6 +44,5 @@ class SplashActivity : AppCompatActivity() {
 
             }
         }, 2000)
-
     }
 }

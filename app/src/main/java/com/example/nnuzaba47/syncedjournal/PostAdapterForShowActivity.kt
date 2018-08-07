@@ -42,6 +42,8 @@ class PostAdapterForShowActivity(context: Context) : RecyclerView.Adapter<PostAd
         notifyDataSetChanged()
     }
 
+
+
     class PostViewHolder(itemView:View):RecyclerView.ViewHolder(itemView) {
         var sourceURL:TextView = itemView.findViewById(R.id.tvShowPostURL) as TextView
         var description:TextView = itemView.findViewById(R.id.tvShowPostDescription) as TextView

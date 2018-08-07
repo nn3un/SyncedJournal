@@ -1,48 +1,59 @@
 package com.example.nnuzaba47.syncedjournal
 
-import android.arch.lifecycle.LiveData
+import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_show.*
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class ShowActivity : AppCompatActivity() {
 
     var entryId:Long ?= null  //The entryId
+    var entry:Entry ?= null
     var mPostViewModel:PostViewModel ?= null
     var adapter: PostAdapterForShowActivity ?= null
-
+    var postDao:PostDao ?= null
+    var entryDao:EntryDao ?= null
+    companion object {
+        const val REQUEST_CODE_FOR_EDIT_ACTIVITY = 0
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.i("tag", "Show activity created")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_show)
         mPostViewModel = PostViewModel(application) //Setup postViewModel
-
+        postDao = MyDatabase.getDatabase(applicationContext)!!.postDao()
+        entryDao = MyDatabase.getDatabase(applicationContext)!!.entryDao()
         //Get entryId from EntriesActivity
-        entryId = intent.getLongExtra("entryId", -1)
-
-        //If the entry Id wasn't in the intent go back to the EntriesActivity
+        if (entryId == null) {
+            entryId = intent.getLongExtra("entryId", -1)
+        }
+        //If the entry Id wasn't in the intent or savedInstance go back to the EntriesActivity
         if(entryId!! < 0){
             startActivity(Intent(applicationContext, EntriesActivity::class.java))
             Toast.makeText(applicationContext, "Entry Not found", Toast.LENGTH_LONG).show()
             finish()
         }
         else{
-            var entry:Entry? = MyDatabase.getDatabase(applicationContext)!!.entryDao().loadById(entryId)
+            entry = MyDatabase.getDatabase(applicationContext)!!.entryDao().loadById(entryId)
             //if there was an entry found, we can go ahead and show the informations
             if (entry != null){
                 //Set the title and description textViews
-                etShowEntryTitle.text = entry.title
-                etShowEntryDescription.text = entry.description
+                tvShowEntryTitle.text = entry!!.title
+                tvShowEntryDescription.text = entry!!.description
+                tvShowEntryDate.text = SimpleDateFormat("MM/dd/yy", Locale.US).format(entry!!.date)
                 //Initiate the adapter and start observing the live data
                 adapter = PostAdapterForShowActivity(this)
-                mPostViewModel!!.getAllPostsForEntryId(entry.id!!).observe(this, Observer<List<Post>>{
-                    adapter!!.setPosts(ArrayList(it!!))
-                })
+                adapter!!.setPosts(ArrayList(postDao!!.loadPostsForEntry(entryId!!)))
                 //Setup the recyclerView
                 rvShowPosts.adapter = adapter
                 rvShowPosts.layoutManager = LinearLayoutManager(this)
@@ -56,6 +67,31 @@ class ShowActivity : AppCompatActivity() {
         }
 
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.i("tag", "OnActivityResult called")
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE_FOR_EDIT_ACTIVITY){
+            entryId = data!!.getLongExtra("entryId", -1)
+        }
+    }
+
+    override fun onStart(){
+        super.onStart()
+        Log.i("tag", "Show activity started")
+    }
+    override fun onResume() {
+        super.onResume()
+        Log.i("tag", "Show Activity Resumed")
+        entry = entryDao!!.loadById(entryId)
+        tvShowEntryTitle.text = entry!!.title
+        tvShowEntryDescription.text = entry!!.description
+        tvShowEntryDate.text = SimpleDateFormat("MM/dd/yy", Locale.US).format(entry!!.date)
+        //Initiate the adapter and start observing the live data
+        adapter!!.setPosts(ArrayList(postDao!!.loadPostsForEntry(entryId!!)))
+        adapter!!.notifyDataSetChanged()
+    }
+
 
     /**
      * Deletes current activity
@@ -76,8 +112,8 @@ class ShowActivity : AppCompatActivity() {
     fun editEntry(view: View){
         var intent = Intent(applicationContext, EditActivity::class.java)
         intent.putExtra("id", entryId)
-        startActivity(intent)
-        finish()
+        startActivityForResult(intent, REQUEST_CODE_FOR_EDIT_ACTIVITY)
+        //finish()
     }
 
     fun goBackToEntries(view: View){

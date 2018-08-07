@@ -19,7 +19,12 @@ import com.facebook.login.LoginResult
 import kotlinx.android.synthetic.main.activity_new_entry.*
 import org.json.JSONArray
 import org.json.JSONObject
+import java.text.SimpleDateFormat
 import kotlin.collections.ArrayList
+import android.widget.DatePicker
+import android.app.DatePickerDialog
+
+
 
 
 class NewEntryActivity : AppCompatActivity() {
@@ -31,6 +36,16 @@ class NewEntryActivity : AppCompatActivity() {
     private var posts:ArrayList<Post> = ArrayList()    //An empty list to contain the new post
     private var postAdapter:PostAdapterForNewEntryActivity ?= null  //The post adapter that will display the posts
     private var database: MyDatabase ?=null
+    private var calendar:Calendar = Calendar.getInstance()
+    var sdf = SimpleDateFormat("MM/dd/yyyy", Locale.US)
+    //Set up the date picker dialog
+
+    var date: DatePickerDialog.OnDateSetListener = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+        calendar.set(Calendar.YEAR, year)
+        calendar.set(Calendar.MONTH, monthOfYear)
+        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+        etNewEntryDate.setText(sdf.format(calendar.time))
+    }
 
 
     //--------------------------------------------Override Methods------------------------------------------------------------
@@ -41,6 +56,8 @@ class NewEntryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_entry)
+
+        etNewEntryDate.setText(sdf.format(Date())) //Set up the date edit text with the current date
 
         //First we set up the views and database
         database = MyDatabase.getDatabase(applicationContext)
@@ -84,7 +101,7 @@ class NewEntryActivity : AppCompatActivity() {
                 //Create the new entry and insert into database
                 val title = etNewEntryTitle.text.toString()
                 val description = etNewEntryDescription.text.toString()
-                val entry = Entry(title, description, Date())
+                val entry = Entry(title, description, calendar.time)
                 var entryId = database!!.entryDao().insert(entry)
 
                 //Set up postViewModel
@@ -93,17 +110,6 @@ class NewEntryActivity : AppCompatActivity() {
                 for(ind in 0 until postAdapter!!.itemCount){
                     var post:Post = postAdapter!!.getPostAtPosition(ind)!!
                     //update the description of the post, as the user might have changed it to better describe their day
-                    //post!!.description = postAdapterForNewEntryActivity!!.mPostViewHolders[ind].itemView.etPostDescription.text.toString()
-
-                   /**
-                    Log.i("Mytag", "current index : $ind with post: $post")
-                    Log.i("Mytag", "" +rvPosts.layoutManager)
-
-                    var postViewHolder2 = rvPosts.layoutManager!!.getChildAt(ind)!!
-                    var itemId: Long = rvPosts.adapter!!.getItemId(ind)
-                    var postViewHolder = rvPosts.findViewHolderForItemId(itemId)
-                    var postView = postViewHolder.itemView
-                    */
 
                     var etPostDescription: EditText = postAdapter!!.postToDescriptionMap[post]!!
                     post.description = etPostDescription.text.toString()
@@ -112,9 +118,6 @@ class NewEntryActivity : AppCompatActivity() {
                 }
 
                 Toast.makeText(applicationContext, "Added successfully", Toast.LENGTH_LONG).show()
-
-                //go back to the all entries page and close the current one
-                startActivity(Intent(applicationContext, EntriesActivity::class.java))
                 finish()
             }
 
@@ -132,6 +135,12 @@ class NewEntryActivity : AppCompatActivity() {
             //create a bundle with the necessary fields of the post that will be required
             var params: Bundle = Bundle()
             params.putString("fields", "description, picture, message, created_time, from")
+            var since:String = sdf.format(calendar.time).toString() + " 04:00"
+            calendar.add(Calendar.HOUR_OF_DAY, 24)
+            var until:String = sdf.format(calendar.time).toString() + " 03:59"
+            params.putString("since", since)
+            params.putString("until", until)
+
             //Initiate the graphRequest by using facebook's Graphrequest class (https://developers.facebook.com/docs/reference/android/current/class/GraphRequest/)
             GraphRequest(
                     AccessToken.getCurrentAccessToken(), "/me/feed", params, HttpMethod.GET,
@@ -152,13 +161,15 @@ class NewEntryActivity : AppCompatActivity() {
         }
 
     }
-    /**
-    fun deleteNewPost(view: View){
-        var linearLayout: View = view.parent as View
-        var position:Int = rvPosts.getChildAdapterPosition(linearLayout)
-        postAdapter!!.removeAtPosition(position)
+
+    //On click listener for the date Edit text
+    fun setDate(view: View){
+        DatePickerDialog(this, date, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)).show()
     }
-    **/
+
+
+
     //--------------------------------------------Helper Methods------------------------------------------------------------
     /**
      * Helper method for creating the post

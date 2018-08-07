@@ -9,7 +9,7 @@ class PostRepository{
 
     private var allPosts: LiveData<List<Post>>
     var mPost:Post?=null
-    var mPostsForEntry:LiveData<List<Post>>?=null
+    var mPostsForEntry:List<Post>?=null
 
     /**
      * @param application The current application
@@ -46,8 +46,13 @@ class PostRepository{
         return mPost
     }
 
-    fun getPostsByEntryId(entryId: Long): LiveData<List<Post>>? {
+    fun getPostsByEntryId(entryId: Long):List<Post>? {
         return mPostDao.loadPostsForEntry(entryId)
+    }
+
+    fun getPostsByEntryIdAsync(entryId: Long):List<Post>? {
+        loadPostsByEntryIdAsyncTask(mPostDao).execute(entryId)
+        return mPostsForEntry
     }
 
 
