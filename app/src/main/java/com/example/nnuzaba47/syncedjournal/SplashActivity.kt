@@ -16,6 +16,8 @@ import android.icu.util.DateInterval
 import android.support.v4.app.NotificationManagerCompat
 import android.util.Log
 import java.util.*
+import android.widget.ProgressBar
+import kotlinx.android.synthetic.main.activity_splash.*
 
 
 class SplashActivity : AppCompatActivity() {
@@ -24,6 +26,10 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
+
+        // on some click or some loading we need to wait for...
+        val pb = progressBar as ProgressBar
+        pb.visibility = ProgressBar.VISIBLE
 
         var settings:SharedPreferences = getSharedPreferences("PREFS", 0)
         password = settings.getString("password", "")

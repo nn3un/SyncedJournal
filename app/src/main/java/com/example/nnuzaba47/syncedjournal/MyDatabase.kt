@@ -11,7 +11,7 @@ import android.os.AsyncTask
 import java.util.*
 
 
-@Database(entities = [(Entry::class), (Post::class)], version = 12, exportSchema = false)
+@Database(entities = [(Entry::class), (Post::class)], version = 13, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class MyDatabase : RoomDatabase() {
 

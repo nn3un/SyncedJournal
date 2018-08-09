@@ -1,19 +1,20 @@
 package com.example.nnuzaba47.syncedjournal
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DatePickerDialog
-import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import com.facebook.*
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import kotlinx.android.synthetic.main.activity_edit.*
-import kotlinx.android.synthetic.main.activity_new_entry.*
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
@@ -24,28 +25,31 @@ class EditActivity : AppCompatActivity() {
 
     var entryId:Long = -1
     var entry:Entry?= null
-    var postsInDB: List<Post> ?= null
+    var postDao: PostDao? = null
+    var sdf = SimpleDateFormat("MMM d, yyyy", Locale.US)
+    var entryDate:Date ?= null
+    private var postsInDB: List<Post> ?= null
     private var mPostViewModel:PostViewModel ?= null
     private var adapter: PostAdapterForEditActivity ?= null
-    var postDao: PostDao? = null
     private var loginManager = LoginManager.getInstance()!!    //Handles facebook login
     private var callbackManager = CallbackManager.Factory.create()!!  //Handles the facebook login callback
     private var calendar: Calendar = Calendar.getInstance()
-    var sdf = SimpleDateFormat("MM/dd/yyyy", Locale.US)
+
     //Set up the date picker dialog
 
-    var date: DatePickerDialog.OnDateSetListener = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+    var dateSetListener: DatePickerDialog.OnDateSetListener = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
         calendar.set(Calendar.YEAR, year)
         calendar.set(Calendar.MONTH, monthOfYear)
         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-        etEditEntryDate.setText(sdf.format(calendar.time))
+        entryDate = calendar.time
+        tbEditEntry.title = "Edit entry for " + sdf.format(entryDate)
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit)
         //Set up
-        setSupportActionBar(my_toolbar)
         mPostViewModel = PostViewModel(application)
         postDao = MyDatabase.getDatabase(applicationContext)!!.postDao()
 
@@ -59,9 +63,13 @@ class EditActivity : AppCompatActivity() {
             //var entry:Entry? = ViewModelProviders.of(this).get(EntryViewModel::class.java).getById(entryId)
             entry = MyDatabase.getDatabase(applicationContext)!!.entryDao().loadById(entryId)
             if (entry != null){
+                entryDate = entry!!.date
+                tbEditEntry.title = "Edit entry for " + sdf.format(entryDate)
+                setSupportActionBar(tbEditEntry)
                 etEditEntryTitle.setText(entry!!.title)
                 etEditEntryDescription.setText(entry!!.description)
-                etEditEntryDate.setText(sdf.format(entry!!.date)) //Set up the date edit text with the current date
+
+
                 adapter = PostAdapterForEditActivity(this)
 
                 postsInDB = postDao!!.loadPostsForEntry(entryId)
@@ -110,6 +118,31 @@ class EditActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.menu_new_entry, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.action_changeDate -> {
+            DatePickerDialog(this, dateSetListener, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)).show()
+            true
+        }
+
+        R.id.homeAsUp->{
+            onBackPressed()
+            true
+        }
+
+        else -> {
+            // If we got here, the user's action was not recognized.
+            // Invoke the superclass to handle it.
+            super.onOptionsItemSelected(item)
+        }
+    }
+
     fun sync(view: View){
         //If the user is not logged in, log them in, while getting the necessary permissions
         if (!isLoggedIn()){
@@ -119,9 +152,11 @@ class EditActivity : AppCompatActivity() {
         if (isLoggedIn()) {
             //create a bundle with the necessary fields of the post that will be required
             var params: Bundle = Bundle()
-            params.putString("fields", "description, picture, message, created_time, from")
-            var since:String = etEditEntryDate.text.toString()+ " 00:00"
-            var until:String = etEditEntryDate.text.toString() + " 23:59"
+            params.putString("fields", "description, full_picture, message, created_time, from")
+            calendar.time = entryDate
+            var since:String = sdf.format(calendar.time).toString() + " 04:00"
+            calendar.add(Calendar.HOUR_OF_DAY, 24)
+            var until:String = sdf.format(calendar.time).toString() + " 03:59"
             params.putString("since", since)
             params.putString("until", until)
 
@@ -133,8 +168,8 @@ class EditActivity : AppCompatActivity() {
                         var postArray: JSONArray? = response.jsonObject.getJSONArray("data")
                         for (item in 0 until postArray!!.length()) {
                             var post: JSONObject? = postArray.getJSONObject(item)
-                            //for each post, if there's a picture involved than it was probably an activity in the user day, so we are interested in it
-                            if (post!!.has("picture")) {
+                            //for each post, if there's a full_picture involved than it was probably an activity in the user day, so we are interested in it
+                            if (post!!.has("full_picture")) {
                                 createPost(post)
                             }
                         }
@@ -146,16 +181,11 @@ class EditActivity : AppCompatActivity() {
 
     }
 
-    fun editDate(view: View){
-        DatePickerDialog(this, date, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)).show()
-    }
-
     fun updateEntry(view: View){
         //update the entry information
         entry!!.title = etEditEntryTitle.text.toString()
         entry!!.description = etEditEntryDescription.text.toString()
-        entry!!.date = sdf.parse(etEditEntryDate.text.toString())
+        entry!!.date = entryDate
         MyDatabase.getDatabase(applicationContext)!!.entryDao().update(entry!!)
 
         //Update the post's information, namely the description field
@@ -189,7 +219,7 @@ class EditActivity : AppCompatActivity() {
         var description: String = if (post.has("message")) post.get("message") as String  else (if (post.has("description")) post.get("description") as String else "")
 
         //getting the image url, facebook only sends back one
-        var imageURL: String = post.get("picture") as String
+        var imageURL: String = post.get("full_picture") as String
 
         var newPost = Post(sourceURL, description, imageURL)
         newPost.entryId = entryId

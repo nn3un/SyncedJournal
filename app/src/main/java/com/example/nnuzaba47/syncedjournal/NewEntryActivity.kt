@@ -1,5 +1,6 @@
 package com.example.nnuzaba47.syncedjournal
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
@@ -7,7 +8,6 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.text.TextUtils
-import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
@@ -23,8 +23,8 @@ import java.text.SimpleDateFormat
 import kotlin.collections.ArrayList
 import android.widget.DatePicker
 import android.app.DatePickerDialog
-
-
+import android.view.Menu
+import android.view.MenuItem
 
 
 class NewEntryActivity : AppCompatActivity() {
@@ -37,14 +37,16 @@ class NewEntryActivity : AppCompatActivity() {
     private var postAdapter:PostAdapterForNewEntryActivity ?= null  //The post adapter that will display the posts
     private var database: MyDatabase ?=null
     private var calendar:Calendar = Calendar.getInstance()
-    var sdf = SimpleDateFormat("MM/dd/yyyy", Locale.US)
+    private var sdf = SimpleDateFormat("MMM d, yyyy", Locale.US)
+    private var entryDate:Date = Date()
     //Set up the date picker dialog
 
-    var date: DatePickerDialog.OnDateSetListener = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+    var dateSetListener: DatePickerDialog.OnDateSetListener = DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
         calendar.set(Calendar.YEAR, year)
         calendar.set(Calendar.MONTH, monthOfYear)
         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-        etNewEntryDate.setText(sdf.format(calendar.time))
+        entryDate = calendar.time
+        tbNewEntry.title = "New Entry for " + sdf.format(entryDate)
     }
 
 
@@ -53,11 +55,15 @@ class NewEntryActivity : AppCompatActivity() {
      * Override the oncreate function to set up the new entry form, along with the new posts view
      * @param savedInstanceState The saved layout information
      */
+    @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_entry)
-
-        etNewEntryDate.setText(sdf.format(Date())) //Set up the date edit text with the current date
+        tbNewEntry.title = "New Entry for " + sdf.format(entryDate)
+        setSupportActionBar(tbNewEntry)
+        if(supportActionBar!=null){
+            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        }
 
         //First we set up the views and database
         database = MyDatabase.getDatabase(applicationContext)
@@ -88,6 +94,26 @@ class NewEntryActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.menu_new_entry, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.action_changeDate -> {
+            DatePickerDialog(this, dateSetListener, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)).show()
+            true
+        }
+
+        else -> {
+            // If we got here, the user's action was not recognized.
+            // Invoke the superclass to handle it.
+            super.onOptionsItemSelected(item)
+        }
+    }
+
     //--------------------------------------------OnClick Listeners------------------------------------------------------------
     /**
      * The button listener for the add button. It creates an entry in the EntryDatabase
@@ -101,7 +127,7 @@ class NewEntryActivity : AppCompatActivity() {
                 //Create the new entry and insert into database
                 val title = etNewEntryTitle.text.toString()
                 val description = etNewEntryDescription.text.toString()
-                val entry = Entry(title, description, calendar.time)
+                val entry = Entry(title, description, entryDate)
                 var entryId = database!!.entryDao().insert(entry)
 
                 //Set up postViewModel
@@ -134,7 +160,8 @@ class NewEntryActivity : AppCompatActivity() {
         if (isLoggedIn()) {
             //create a bundle with the necessary fields of the post that will be required
             var params: Bundle = Bundle()
-            params.putString("fields", "description, picture, message, created_time, from")
+            params.putString("fields", "description, full_picture, message, created_time, from")
+            calendar.time = entryDate
             var since:String = sdf.format(calendar.time).toString() + " 04:00"
             calendar.add(Calendar.HOUR_OF_DAY, 24)
             var until:String = sdf.format(calendar.time).toString() + " 03:59"
@@ -150,7 +177,7 @@ class NewEntryActivity : AppCompatActivity() {
                         for (item in 0 until postArray!!.length()) {
                             var post: JSONObject? = postArray.getJSONObject(item)
                             //for each post, if there's a picture involved than it was probably an activity in the user day, so we are interested in it
-                            if (post!!.has("picture")) {
+                            if (post!!.has("full_picture")) {
                                 createPost(post)
                             }
                         }
@@ -160,12 +187,6 @@ class NewEntryActivity : AppCompatActivity() {
             Toast.makeText(this, "Sorry syncing failed, please try again", Toast.LENGTH_LONG).show()
         }
 
-    }
-
-    //On click listener for the date Edit text
-    fun setDate(view: View){
-        DatePickerDialog(this, date, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)).show()
     }
 
 
@@ -183,7 +204,7 @@ class NewEntryActivity : AppCompatActivity() {
         var description: String = if (post.has("message")) post.get("message") as String  else (if (post.has("description")) post.get("description") as String else "")
 
         //getting the image url, facebook only sends back one
-        var imageURL: String = post.get("picture") as String
+        var imageURL: String = post.get("full_picture") as String
 
         //Creating the post
         postAdapter!!.add(Post(sourceURL, description, imageURL))

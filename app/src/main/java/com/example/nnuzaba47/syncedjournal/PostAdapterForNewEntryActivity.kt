@@ -1,6 +1,8 @@
 package com.example.nnuzaba47.syncedjournal
 import android.content.Context
+import android.content.Intent
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.AsyncTask
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -12,6 +14,13 @@ import android.widget.TextView
 import java.io.InputStream
 import java.net.URL
 import android.support.design.widget.FloatingActionButton
+import android.support.v4.content.ContextCompat.startActivity
+import android.text.method.LinkMovementMethod
+import java.net.URI
+import android.text.style.UnderlineSpan
+import android.text.SpannableString
+
+
 
 
 class PostAdapterForNewEntryActivity: RecyclerView.Adapter<PostAdapterForNewEntryActivity.PostViewHolder>{
@@ -26,7 +35,12 @@ class PostAdapterForNewEntryActivity: RecyclerView.Adapter<PostAdapterForNewEntr
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val item = items[position]
-        holder.sourceURL.text = item.sourceURL
+        val content = SpannableString("From Facebook.com")
+        content.setSpan(UnderlineSpan(), 0, content.length, 0)
+        holder.sourceURL.text = content
+        holder.sourceURL.setOnClickListener {
+            startActivity(it.context, Intent(Intent.ACTION_VIEW, Uri.parse(item.sourceURL)), null)
+        }
         holder.description.setText(item.description)
         var asyncTask = holder.SetImageInBackground()
         asyncTask.execute(item.imageURL)
@@ -96,15 +110,10 @@ class PostAdapterForNewEntryActivity: RecyclerView.Adapter<PostAdapterForNewEntr
                     picture.setImageBitmap(bitmap)
                 } catch (e: Exception) {
                     this.exception = e
-
                 }
                 return null
             }
-
         }
-
     }
-
-
 }
 

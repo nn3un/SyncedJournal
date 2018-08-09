@@ -3,74 +3,52 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".ShowActivity">
 
-    <TextView
-        android:id="@+id/tvShowEntryDate"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/tbShowEntry"
+        style="@style/Widget.Design.AppBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView"
-        android:textSize="18sp" />
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/Theme.App"
+        app:titleTextColor="@android:color/white" />
 
     <TextView
         android:id="@+id/tvShowEntryTitle"
-        android:layout_width="match_parent"
+        style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_gravity="center"
+        android:layout_margin="4dp"
+        android:fontFamily="@font/average"
+        android:gravity="center"
+        android:padding="8dp"
         android:text="TextView"
-        android:textSize="30sp" />
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:theme="@style/Theme.App" />
 
     <TextView
         android:id="@+id/tvShowEntryDescription"
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_margin="4dp"
+        android:fontFamily="@font/average"
         android:gravity="left"
+        android:padding="8dp"
         android:text="TextView"
-        android:textSize="20sp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/etEditEntry"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="editEntry"
-            android:text="Edit" />
-
-        <Button
-            android:id="@+id/etDeleteEntry"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="deleteEntry"
-            android:text="Delete" />
-
-        <Button
-            android:id="@+id/buBackToEntries"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="goBackToEntries"
-            android:text="Back" />
-
-    </LinearLayout>
+        android:textSize="20sp"
+        android:theme="@style/Theme.App" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rvShowPosts"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:padding="8dp" />
 
 </LinearLayout>

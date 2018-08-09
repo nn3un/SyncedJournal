@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.nnuzaba47.syncedjournal">
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
@@ -15,10 +16,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".EntriesActivity" />
-        <activity android:name=".CreatePasswordActivity" />
-        <activity android:name=".EnterPasswordActivity" />
+        android:theme="@style/Theme.App">
+
+
         <activity android:name=".SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,15 +26,31 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".CreatePasswordActivity" />
+        <activity android:name=".EnterPasswordActivity" />
+        <activity android:name=".EntriesActivity"/>
+        <activity android:name=".ChangePasswordActivity"></activity>
         <activity
             android:name=".NewEntryActivity"
-            android:parentActivityName=".EntriesActivity" />
+            android:parentActivityName=".EntriesActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.nnuzaba47.syncedjournal.EntriesActivity" />
+        </activity>
         <activity
             android:name=".ShowActivity"
-            android:parentActivityName=".EntriesActivity" />
+            android:parentActivityName=".EntriesActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.nnuzaba47.syncedjournal.EntriesActivity" />
+        </activity>
         <activity
             android:name=".EditActivity"
-            android:parentActivityName=".ShowActivity" />
+            android:parentActivityName=".ShowActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.nnuzaba47.syncedjournal.ShowActivity" />
+        </activity>
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
@@ -42,7 +58,9 @@
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
-
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
@@ -62,7 +80,6 @@
 
         <receiver android:name=".MyBroadcastReceiver" />
 
-        <activity android:name=".ChangePasswordActivity"></activity>
     </application>
 
 </manifest>

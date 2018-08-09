@@ -1,8 +1,11 @@
 package com.example.nnuzaba47.syncedjournal
 import android.arch.lifecycle.LiveData
 import android.content.Context
+import android.content.Intent
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.AsyncTask
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -20,7 +23,10 @@ class PostAdapterForShowActivity(context: Context) : RecyclerView.Adapter<PostAd
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val item = items!![position]
-        holder.sourceURL.text = item.sourceURL
+        holder.sourceURL.text = "See post at Facebook.com"
+        holder.sourceURL.setOnClickListener(){
+            ContextCompat.startActivity(it.context, Intent(Intent.ACTION_VIEW, Uri.parse(item.sourceURL)), null)
+        }
         holder.description.text = item.description
         var asyncTask = holder.SetImageInBackground()
         asyncTask.execute(item.imageURL)

@@ -5,7 +5,7 @@ import android.arch.persistence.room.*
 
 @Dao
 interface EntryDao {
-    @Query("SELECT * FROM entryTable")
+    @Query("SELECT * FROM entryTable ORDER BY date DESC")
     fun getAll():LiveData<List<Entry>>
     @Query("SELECT * FROM entryTable WHERE id IN (:entryIds)")
     fun loadAllByIds(entryIds:LongArray):List<Entry>

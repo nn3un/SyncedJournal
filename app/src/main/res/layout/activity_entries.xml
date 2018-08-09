@@ -1,35 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="0dp"
     tools:context=".EntriesActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
+        style="@style/Widget.Design.AppBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#c4c8db"
         android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme" />
+        android:theme="?attr/actionBarTheme"
+        app:subtitleTextColor="@android:color/white"
+        app:title="Your Entries"
+        app:titleTextColor="@android:color/white" />
 
     <Button
         android:id="@+id/buNewEntry"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_margin="4dp"
         android:onClick="newEntry"
-        android:text="+ New Entry" />
+        android:text="+ New Entry"
+        android:textColor="@android:color/white"
+        android:textSize="18sp" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rvEntries"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
+        android:layout_weight="1"
         tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp" />
+        tools:layout_editor_absoluteY="8dp">
+
+    </android.support.v7.widget.RecyclerView>
 
 </LinearLayout>

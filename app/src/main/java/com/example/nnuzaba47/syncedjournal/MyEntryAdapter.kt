@@ -19,7 +19,7 @@ class MyEntryAdapter: RecyclerView.Adapter<MyEntryAdapter.EntryViewHolder>{
     override fun onBindViewHolder(holder: EntryViewHolder, position: Int) {
         val item = items!!.get(position)
         holder.title.text = item.title.toString()
-        holder.date.text = SimpleDateFormat("yyyy/MM/dd").format(item.date).toString()
+        holder.date.text = SimpleDateFormat("MMM d, yyyy").format(item.date).toString()
     }
 
 

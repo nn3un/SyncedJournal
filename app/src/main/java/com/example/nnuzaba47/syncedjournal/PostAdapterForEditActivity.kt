@@ -1,11 +1,16 @@
 package com.example.nnuzaba47.syncedjournal
 import android.content.Context
+import android.content.Intent
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.AsyncTask
 import android.support.design.widget.FloatingActionButton
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.text.Editable
+import android.text.SpannableString
 import android.text.TextWatcher
+import android.text.style.UnderlineSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,7 +33,10 @@ class PostAdapterForEditActivity: RecyclerView.Adapter<PostAdapterForEditActivit
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val item = items[position]
-        holder.sourceURL.text = item.sourceURL
+        holder.sourceURL.text = "From Facebook.com"
+        holder.sourceURL.setOnClickListener {
+            ContextCompat.startActivity(it.context, Intent(Intent.ACTION_VIEW, Uri.parse(item.sourceURL)), null)
+        }
         holder.description.setText(item.description)
 
         holder.description.addTextChangedListener(object : TextWatcher{
