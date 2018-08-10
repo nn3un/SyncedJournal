@@ -21,10 +21,14 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import kotlin.collections.ArrayList
-import android.widget.DatePicker
 import android.app.DatePickerDialog
 import android.view.Menu
 import android.view.MenuItem
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import com.google.gson.Gson
 
 
 class NewEntryActivity : AppCompatActivity() {
@@ -41,18 +45,14 @@ class NewEntryActivity : AppCompatActivity() {
     private var entryDate:Date = Date()
     //Set up the date picker dialog
 
-    var dateSetListener: DatePickerDialog.OnDateSetListener = DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-        calendar.set(Calendar.YEAR, year)
-        calendar.set(Calendar.MONTH, monthOfYear)
-        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-        entryDate = calendar.time
-        tbNewEntry.title = "New Entry for " + sdf.format(entryDate)
+    companion object {
+        val REQUEST_CODE_FOR_ACCESS_TOKEN_RETRIEVAL = 0
     }
 
 
     //--------------------------------------------Override Methods------------------------------------------------------------
     /**
-     * Override the oncreate function to set up the new entry form, along with the new posts view
+     * Override the on create function to set up the new entry form, along with the new posts view
      * @param savedInstanceState The saved layout information
      */
     @SuppressLint("RestrictedApi")
@@ -90,7 +90,41 @@ class NewEntryActivity : AppCompatActivity() {
     }
     //overriding onActivityResult for the callback of login
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        callbackManager.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == REQUEST_CODE_FOR_ACCESS_TOKEN_RETRIEVAL){
+            if(resultCode== Activity.RESULT_OK){
+                val queue = Volley.newRequestQueue(this)
+                val url = "https://api.instagram.com/v1/users/self/media/recent/?access_token=" +
+                        data!!.getStringExtra("ACCESS_TOKEN")
+                val stringRequest = StringRequest(Request.Method.GET, url,
+                    Response.Listener<String> { response ->
+                        var instagramResponseObject = Gson().fromJson(response, InstagramResponseObject::class.java)
+                        var data = instagramResponseObject.data
+                        var calendarNew = calendar
+                        calendarNew.set(Calendar.HOUR_OF_DAY, 0)
+                        calendarNew.set(Calendar.MINUTE, 0)
+                        calendarNew.set(Calendar.SECOND, 0)
+                        var startTime = calendarNew.time.time/1000
+                        calendarNew.add(Calendar.HOUR_OF_DAY, 24)
+                        var endTime = calendarNew.time.time/1000
+                        var i = 0
+                        while(i < data!!.size && data!![i].created_time!! > endTime){
+                            i++
+                        }
+                        while(i < data!!.size && data!![i].created_time!! > startTime){
+                            createInstagramPost(data!![i])
+                            i++
+                        }
+                    },
+                    Response.ErrorListener {  Toast.makeText(this, "Failed to sync", Toast.LENGTH_LONG).show()})
+                queue.add(stringRequest)
+            }
+            else{
+                Toast.makeText(this, "Sync failed", Toast.LENGTH_LONG).show()
+            }
+        }
+        else{
+            callbackManager.onActivityResult(requestCode, resultCode, data)
+        }
         super.onActivityResult(requestCode, resultCode, data)
     }
 
@@ -102,7 +136,13 @@ class NewEntryActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_changeDate -> {
-            DatePickerDialog(this, dateSetListener, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+            DatePickerDialog(this, DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                calendar.set(Calendar.YEAR, year)
+                calendar.set(Calendar.MONTH, monthOfYear)
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                entryDate = calendar.time
+                tbNewEntry.title = "New Entry for " + sdf.format(entryDate)
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
                     calendar.get(Calendar.DAY_OF_MONTH)).show()
             true
         }
@@ -151,7 +191,7 @@ class NewEntryActivity : AppCompatActivity() {
      * The button listener for the sync button. Uploads posts from users social media accounts
      * @param view The current view activity_new_entry
      */
-    fun sync(view: View){
+    fun syncFB(view: View){
         //If the user is not logged in, log them in, while getting the necessary permissions
         if (!isLoggedIn()){
             loginManager.logInWithReadPermissions(this, Arrays.asList("user_posts"));
@@ -178,7 +218,7 @@ class NewEntryActivity : AppCompatActivity() {
                             var post: JSONObject? = postArray.getJSONObject(item)
                             //for each post, if there's a picture involved than it was probably an activity in the user day, so we are interested in it
                             if (post!!.has("full_picture")) {
-                                createPost(post)
+                                createFacebookPost(post)
                             }
                         }
                     }).executeAsync()
@@ -189,6 +229,11 @@ class NewEntryActivity : AppCompatActivity() {
 
     }
 
+    fun syncIG(view:View){
+        var intent = Intent(applicationContext, RetrieveInstagramAccessTokenActivity::class.java)
+        startActivityForResult(intent, REQUEST_CODE_FOR_ACCESS_TOKEN_RETRIEVAL)
+    }
+
 
 
     //--------------------------------------------Helper Methods------------------------------------------------------------
@@ -196,7 +241,7 @@ class NewEntryActivity : AppCompatActivity() {
      * Helper method for creating the post
      * @param post The json object sent by GraphRequest
      */
-    private fun createPost(post: JSONObject){
+    private fun createFacebookPost(post: JSONObject){
         var postId:String = post.get("id") as String
         var sourceURL = "https://www.facebook.com/$postId"
 
@@ -207,6 +252,13 @@ class NewEntryActivity : AppCompatActivity() {
         var imageURL: String = post.get("full_picture") as String
 
         //Creating the post
+        postAdapter!!.add(Post(sourceURL, description, imageURL))
+    }
+
+    private fun createInstagramPost(post: InstagramResponseObject.PostObject){
+        var sourceURL = post.link!!
+        var description = post.caption!!.text!!
+        var imageURL = post.images!!.standard_resolution!!.url!!
         postAdapter!!.add(Post(sourceURL, description, imageURL))
     }
 

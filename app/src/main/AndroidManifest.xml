@@ -17,8 +17,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.App">
-
-
         <activity android:name=".SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,8 +26,8 @@
         </activity>
         <activity android:name=".CreatePasswordActivity" />
         <activity android:name=".EnterPasswordActivity" />
-        <activity android:name=".EntriesActivity"/>
-        <activity android:name=".ChangePasswordActivity"></activity>
+        <activity android:name=".EntriesActivity" />
+        <activity android:name=".ChangePasswordActivity" />
         <activity
             android:name=".NewEntryActivity"
             android:parentActivityName=".EntriesActivity">
@@ -61,6 +59,7 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
@@ -80,6 +79,7 @@
 
         <receiver android:name=".MyBroadcastReceiver" />
 
+        <activity android:name=".RetrieveInstagramAccessTokenActivity"></activity>
     </application>
 
 </manifest>

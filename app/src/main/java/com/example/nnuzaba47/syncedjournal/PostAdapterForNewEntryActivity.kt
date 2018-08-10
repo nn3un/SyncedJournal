@@ -35,7 +35,7 @@ class PostAdapterForNewEntryActivity: RecyclerView.Adapter<PostAdapterForNewEntr
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val item = items[position]
-        val content = SpannableString("From Facebook.com")
+        val content = SpannableString("Source URL")
         content.setSpan(UnderlineSpan(), 0, content.length, 0)
         holder.sourceURL.text = content
         holder.sourceURL.setOnClickListener {

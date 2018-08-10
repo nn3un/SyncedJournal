@@ -33,7 +33,9 @@ class PostAdapterForEditActivity: RecyclerView.Adapter<PostAdapterForEditActivit
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val item = items[position]
-        holder.sourceURL.text = "From Facebook.com"
+        val content = SpannableString("Source URL")
+        content.setSpan(UnderlineSpan(), 0, content.length, 0)
+        holder.sourceURL.text = content
         holder.sourceURL.setOnClickListener {
             ContextCompat.startActivity(it.context, Intent(Intent.ACTION_VIEW, Uri.parse(item.sourceURL)), null)
         }

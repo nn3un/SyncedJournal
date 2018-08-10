@@ -30,4 +30,6 @@
     </string>
     <string name="channel_name">CHANNEL</string>
     <string name="channel_description">Channel for Synced Journal</string>
+    <string name="ClientID"> "dbf2ef2cda7d45b68131d56a71cf7fce"</string>
+    <string name="REDIRECT_URI">"https://instagram.com"</string>
 </resources>

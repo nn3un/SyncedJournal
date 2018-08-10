@@ -63,27 +63,47 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/etNewEntryTitle" />
 
-        <Button
-            android:id="@+id/buSync"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="9dp"
-            android:onClick="sync"
-            android:text="Sync"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/buAdd"
-            app:layout_constraintTop_toBottomOf="@+id/etNewEntryDescription" />
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/buSyncFB"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="9dp"
+                android:onClick="syncFB"
+                android:text="Sync from Facebook"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/buAdd"
+                app:layout_constraintTop_toBottomOf="@+id/etNewEntryDescription" />
+
+            <Button
+                android:id="@+id/buSyncIG"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="9dp"
+                android:onClick="syncIG"
+                android:text="Sync from Instagram"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/buAdd"
+                app:layout_constraintTop_toBottomOf="@+id/etNewEntryDescription" />
+        </LinearLayout>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rvNewPosts"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="10dp"
+            android:layout_weight="3"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

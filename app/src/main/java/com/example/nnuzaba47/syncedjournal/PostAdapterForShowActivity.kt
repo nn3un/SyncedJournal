@@ -7,6 +7,8 @@ import android.net.Uri
 import android.os.AsyncTask
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
+import android.text.SpannableString
+import android.text.style.UnderlineSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,7 +25,9 @@ class PostAdapterForShowActivity(context: Context) : RecyclerView.Adapter<PostAd
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val item = items!![position]
-        holder.sourceURL.text = "See post at Facebook.com"
+        val content = SpannableString("Source URL")
+        content.setSpan(UnderlineSpan(), 0, content.length, 0)
+        holder.sourceURL.text = content
         holder.sourceURL.setOnClickListener(){
             ContextCompat.startActivity(it.context, Intent(Intent.ACTION_VIEW, Uri.parse(item.sourceURL)), null)
         }
