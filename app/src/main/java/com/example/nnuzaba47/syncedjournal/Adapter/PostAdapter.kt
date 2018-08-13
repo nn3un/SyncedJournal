@@ -73,7 +73,7 @@ class PostAdapter: RecyclerView.Adapter<PostAdapter.PostViewHolder> {
     }
 
 
-    public fun getPostAtPosition(position: Int): Post? {
+    fun getPostAtPosition(position: Int): Post? {
         return items!![position]
     }
 
