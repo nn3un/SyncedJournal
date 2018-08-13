@@ -14,7 +14,7 @@
         android:layout_marginEnd="33dp"
         android:clickable="true"
         android:onClick="updateEntry"
-        android:src="@drawable/baseline_done_white_18dp"
+        android:src="@drawable/ic_done_black_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@android:drawable/ic_menu_add" />
@@ -67,35 +67,19 @@
             android:hint="Describe your day"
             android:inputType="textMultiLine" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
+
+        <Button
+            android:id="@+id/buSyncFB"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_gravity="center"
+            android:layout_marginTop="9dp"
+            android:onClick="sync"
+            android:text="Sync"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/buAdd"
+            app:layout_constraintTop_toBottomOf="@+id/etNewEntryDescription" />
 
-            <Button
-                android:id="@+id/buSyncFB"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="9dp"
-                android:onClick="syncFB"
-                android:text="Sync from Facebook"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/buAdd"
-                app:layout_constraintTop_toBottomOf="@+id/etNewEntryDescription" />
-
-            <Button
-                android:id="@+id/buSyncIG"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="9dp"
-                android:onClick="syncIG"
-                android:text="Sync from Instagram"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/buAdd"
-                app:layout_constraintTop_toBottomOf="@+id/etNewEntryDescription" />
-        </LinearLayout>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rvEditPosts"

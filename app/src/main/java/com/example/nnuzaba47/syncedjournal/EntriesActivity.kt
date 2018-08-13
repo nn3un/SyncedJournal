@@ -1,7 +1,6 @@
 package com.example.nnuzaba47.syncedjournal
 
 
-import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
@@ -12,22 +11,24 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import com.example.nnuzaba47.syncedjournal.Adapter.EntryAdapter
+import com.example.nnuzaba47.syncedjournal.Database.EntryViewModel
+import com.example.nnuzaba47.syncedjournal.POJO.Entry
 import com.facebook.login.LoginManager
 import kotlinx.android.synthetic.main.activity_entries.*
-import java.util.*
 
 class EntriesActivity : AppCompatActivity() {
 
     var context: Context =this
 
-    private var mEntryViewModel:EntryViewModel?=null
+    private var mEntryViewModel: EntryViewModel?=null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_entries)
 
         setSupportActionBar(toolbar)
-        var adapter = MyEntryAdapter(this)
+        var adapter = EntryAdapter(this)
         rvEntries.adapter = adapter
         rvEntries.layoutManager = LinearLayoutManager(this)
 
@@ -47,7 +48,7 @@ class EntriesActivity : AppCompatActivity() {
     fun showEntry(view: View){
         var viewHolder = rvEntries.findContainingViewHolder(view)
         var position:Int = viewHolder!!.adapterPosition
-        var adapter = rvEntries.adapter as MyEntryAdapter
+        var adapter = rvEntries.adapter as EntryAdapter
         var entry = adapter.getEntryAtPosition(position)
         var intent = Intent(applicationContext, ShowActivity::class.java)
         intent.putExtra("entryId", entry!!.id)
@@ -73,8 +74,6 @@ class EntriesActivity : AppCompatActivity() {
         }
 
         else -> {
-            // If we got here, the user's action was not recognized.
-            // Invoke the superclass to handle it.
             super.onOptionsItemSelected(item)
         }
     }

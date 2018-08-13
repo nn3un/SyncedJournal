@@ -53,11 +53,10 @@
                     android:clickable="true"
                     android:foregroundGravity="center"
                     android:padding="0dp"
-                    android:src="@drawable/baseline_delete_white_18dp"
+                    android:src="@drawable/ic_delete_black_24dp"
                     android:theme="@style/Widget.MaterialComponents.FloatingActionButton"
                     app:elevation="5dp"
-                    app:fabSize="mini"
-                    app:srcCompat="@android:drawable/ic_delete" />
+                    app:fabSize="mini"/>
             </LinearLayout>
 
             <EditText

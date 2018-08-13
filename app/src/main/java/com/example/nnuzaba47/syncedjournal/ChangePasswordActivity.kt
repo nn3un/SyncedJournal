@@ -15,29 +15,27 @@ class ChangePasswordActivity : AppCompatActivity() {
         setContentView(R.layout.activity_change_password)
     }
 
+    //Change password if old password is correct and the two new passsword fields are non-empty and match
     fun changePassword(view: View){
-
         var settings: SharedPreferences = getSharedPreferences("PREFS", 0)
         var password = settings.getString("password", "")
         var enteredPassword = etOldPassword.text.toString()
         if(enteredPassword == password){
             var newPassword1 = etNewPassword1.text.toString()
             var newPassword2 = etNewPassword2.text.toString()
-            if(newPassword1.equals("")){
-                Toast.makeText(applicationContext, "Enter Password", Toast.LENGTH_LONG).show()
-            }
-            else if(newPassword1.equals(newPassword2)){
-                var settings: SharedPreferences = getSharedPreferences("PREFS", 0)
-                var editor: SharedPreferences.Editor = settings.edit();
-                editor.putString("password", newPassword1)
-                editor.apply()
-                Toast.makeText(applicationContext, "Success!", Toast.LENGTH_LONG).show()
-                var intent = Intent(applicationContext, EnterPasswordActivity::class.java)
-                startActivity(intent)
-                finish()
-            }
-            else{
-                Toast.makeText(applicationContext, "Passwords must match", Toast.LENGTH_LONG).show()
+            when (newPassword1) {
+                "" -> Toast.makeText(applicationContext, "Enter Password", Toast.LENGTH_LONG).show()
+                newPassword2 -> {
+                    var settings: SharedPreferences = getSharedPreferences("PREFS", 0)
+                    var editor: SharedPreferences.Editor = settings.edit();
+                    editor.putString("password", newPassword1)
+                    editor.apply()
+                    Toast.makeText(applicationContext, "Success!", Toast.LENGTH_LONG).show()
+                    var intent = Intent(applicationContext, EnterPasswordActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                }
+                else -> Toast.makeText(applicationContext, "Passwords must match", Toast.LENGTH_LONG).show()
             }
         }
         else{

@@ -2,6 +2,7 @@ package com.example.nnuzaba47.syncedjournal
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
@@ -15,6 +16,13 @@ import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.example.nnuzaba47.syncedjournal.Adapter.PostAdapterForEditActivity
+import com.example.nnuzaba47.syncedjournal.Database.MyDatabase
+import com.example.nnuzaba47.syncedjournal.Database.PostDao
+import com.example.nnuzaba47.syncedjournal.Database.PostViewModel
+import com.example.nnuzaba47.syncedjournal.POJO.Entry
+import com.example.nnuzaba47.syncedjournal.POJO.InstagramResponseObject
+import com.example.nnuzaba47.syncedjournal.POJO.Post
 import com.facebook.*
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
@@ -29,16 +37,18 @@ import kotlin.collections.ArrayList
 class EditActivity : AppCompatActivity() {
 
     var entryId:Long = -1
-    var entry:Entry?= null
-    var postDao: PostDao? = null
-    var sdf = SimpleDateFormat("MMM d, yyyy", Locale.US)
+    var entry: Entry?= null
     var entryDate:Date ?= null
+
+    var postDao: PostDao? = null
     private var postsInDB: List<Post> ?= null
-    private var mPostViewModel:PostViewModel ?= null
-    private var adapter: PostAdapterForEditActivity ?= null
+    private var adapter: PostAdapterForEditActivity?= null
+
     private var loginManager = LoginManager.getInstance()!!    //Handles facebook login
     private var callbackManager = CallbackManager.Factory.create()!!  //Handles the facebook login callback
+
     private var calendar: Calendar = Calendar.getInstance()
+    var sdf = SimpleDateFormat("MMM d, yyyy", Locale.US)
 
     //Set up the date picker dialog
 
@@ -54,10 +64,8 @@ class EditActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit)
-        //Set up
-        mPostViewModel = PostViewModel(application)
-        postDao = MyDatabase.getDatabase(applicationContext)!!.postDao()
 
+        postDao = MyDatabase.getDatabase(applicationContext)!!.postDao()
         entryId = intent.getLongExtra("id", -1)
         if(entryId <  0){
             startActivity(Intent(applicationContext, EntriesActivity::class.java))
@@ -69,37 +77,33 @@ class EditActivity : AppCompatActivity() {
             entry = MyDatabase.getDatabase(applicationContext)!!.entryDao().loadById(entryId)
             if (entry != null){
                 entryDate = entry!!.date
+                //set up title bar
                 tbEditEntry.title = "Edit entry for " + sdf.format(entryDate)
                 setSupportActionBar(tbEditEntry)
+                //set up entry fields
                 etEditEntryTitle.setText(entry!!.title)
                 etEditEntryDescription.setText(entry!!.description)
 
-
+                //set up adapter
                 adapter = PostAdapterForEditActivity(this)
-
                 postsInDB = postDao!!.loadPostsForEntry(entryId)
                 adapter!!.setPosts(ArrayList(postsInDB))
-
-                /**var postsLiveData = mPostViewModel!!.getAllPostsForEntryId(entry!!.id!!)
-                postsLiveData.observe(this, Observer<List<Post>>{
-                    adapter!!.setPosts(ArrayList(it!!))
-                })*/
-
                 rvEditPosts.adapter = adapter
                 rvEditPosts.layoutManager = LinearLayoutManager(this)
 
+                //register facebook's callback manager
                 loginManager.registerCallback(callbackManager,
-                        object: FacebookCallback<LoginResult> {
-                            //overriding the necessary abstract functions
-                            override fun onSuccess(loginResult: LoginResult) {
-                                setResult(Activity.RESULT_OK)
-                            }
-                            override fun onCancel() {
-                                setResult(Activity.RESULT_CANCELED)
-                            }
-                            override fun onError(exception: FacebookException) {
-                            }
-                        })
+                    object: FacebookCallback<LoginResult> {
+                        //overriding the necessary abstract functions
+                        override fun onSuccess(loginResult: LoginResult) {
+                            setResult(Activity.RESULT_OK)
+                        }
+                        override fun onCancel() {
+                            setResult(Activity.RESULT_CANCELED)
+                        }
+                        override fun onError(exception: FacebookException) {
+                        }
+                    })
             }
             else{
                 startActivity(Intent(applicationContext, EntriesActivity::class.java))
@@ -109,6 +113,7 @@ class EditActivity : AppCompatActivity() {
         }
     }
 
+    //Set up on back pressed so that the show page has access to the entryId
     override fun onBackPressed() {
         var intent = Intent()
         intent.putExtra("entryId", entryId)
@@ -176,13 +181,41 @@ class EditActivity : AppCompatActivity() {
         }
 
         else -> {
-            // If we got here, the user's action was not recognized.
-            // Invoke the superclass to handle it.
             super.onOptionsItemSelected(item)
         }
     }
 
-    fun syncFB(view: View){
+    fun sync(view: View) {
+        var socialMediaOption = arrayOf("Facebook", "Instagram")
+        var selectedItems: ArrayList<String> = ArrayList(2)
+        //Create a dialog to let the user choose
+        var chooseDialog: AlertDialog = AlertDialog.Builder(view.context)
+                .setTitle("Choose Social Media to sync from")
+                .setMultiChoiceItems(socialMediaOption, null) { _, index, isChecked ->
+                    if (isChecked) {
+                        selectedItems.add(socialMediaOption[index])
+                    } else {
+                        selectedItems.remove(socialMediaOption[index])
+                    }
+                }
+                .setPositiveButton("Sync") { dialog, _ ->
+                    if (selectedItems.contains("Facebook")) {
+                        syncFB()
+                    }
+                    if (selectedItems.contains("Instagram")) {
+                        syncIG()
+                    }
+                    selectedItems.clear()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel") { dialog, _ ->
+                    selectedItems.clear()
+                    dialog.dismiss()
+                }.create()
+        chooseDialog.show()
+    }
+
+    fun syncFB(){
         //If the user is not logged in, log them in, while getting the necessary permissions
         if (!isLoggedIn()){
             loginManager.logInWithReadPermissions(this, Arrays.asList("user_posts"));
@@ -220,7 +253,7 @@ class EditActivity : AppCompatActivity() {
 
     }
 
-    fun syncIG(view:View){
+    private fun syncIG(){
         var intent = Intent(applicationContext, RetrieveInstagramAccessTokenActivity::class.java)
         startActivityForResult(intent, NewEntryActivity.REQUEST_CODE_FOR_ACCESS_TOKEN_RETRIEVAL)
     }
@@ -238,7 +271,7 @@ class EditActivity : AppCompatActivity() {
         }
 
         //Delete the removed entries from database
-        postsInDB!!.forEach(){
+        postsInDB!!.forEach{
             if(!adapter!!.items.contains(it)){
                 postDao!!.delete(it)
             }
@@ -274,6 +307,7 @@ class EditActivity : AppCompatActivity() {
         adapter!!.add(newPost)
     }
 
+    //Create new instagram post andd add it to database
     private fun createInstagramPost(post: InstagramResponseObject.PostObject){
         var sourceURL = post.link!!
         var description = post.caption!!.text!!

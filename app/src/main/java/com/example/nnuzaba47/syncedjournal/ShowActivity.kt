@@ -1,43 +1,47 @@
 package com.example.nnuzaba47.syncedjournal
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.app.DatePickerDialog
-import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
+import com.example.nnuzaba47.syncedjournal.Adapter.PostAdapterForShowActivity
+import com.example.nnuzaba47.syncedjournal.Database.EntryDao
+import com.example.nnuzaba47.syncedjournal.Database.MyDatabase
+import com.example.nnuzaba47.syncedjournal.Database.PostDao
+import com.example.nnuzaba47.syncedjournal.Database.PostViewModel
+import com.example.nnuzaba47.syncedjournal.POJO.Entry
 import kotlinx.android.synthetic.main.activity_show.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
 class ShowActivity : AppCompatActivity() {
+    private var entryId:Long ?= null
+    private var entry: Entry?= null
+    private var entryDao: EntryDao?= null
 
-    var entryId:Long ?= null  //The entryId
-    var entry:Entry ?= null
-    var mPostViewModel:PostViewModel ?= null
-    var adapter: PostAdapterForShowActivity ?= null
-    var postDao:PostDao ?= null
-    var entryDao:EntryDao ?= null
+    private var mPostViewModel: PostViewModel?= null
+    private var adapter: PostAdapterForShowActivity?= null
+    private var postDao: PostDao?= null
+
     companion object {
         const val REQUEST_CODE_FOR_EDIT_ACTIVITY = 0
     }
+
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.i("tag", "Show activity created")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_show)
-        mPostViewModel = PostViewModel(application) //Setup postViewModel
-        postDao = MyDatabase.getDatabase(applicationContext)!!.postDao()
+
         entryDao = MyDatabase.getDatabase(applicationContext)!!.entryDao()
+        postDao = MyDatabase.getDatabase(applicationContext)!!.postDao()
+        mPostViewModel = PostViewModel(application)
+
         //Get entryId from EntriesActivity
         if (entryId == null) {
             entryId = intent.getLongExtra("entryId", -1)
@@ -79,20 +83,14 @@ class ShowActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.i("tag", "OnActivityResult called")
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CODE_FOR_EDIT_ACTIVITY){
             entryId = data!!.getLongExtra("entryId", -1)
         }
     }
 
-    override fun onStart(){
-        super.onStart()
-        Log.i("tag", "Show activity started")
-    }
     override fun onResume() {
         super.onResume()
-        Log.i("tag", "Show Activity Resumed")
         entry = entryDao!!.loadById(entryId)
         tvShowEntryTitle.text = entry!!.title
         tvShowEntryDescription.text = entry!!.description
@@ -108,6 +106,7 @@ class ShowActivity : AppCompatActivity() {
         return true
     }
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        //Start Edit Activity
         R.id.action_edit -> {
             var intent = Intent(applicationContext, EditActivity::class.java)
             intent.putExtra("id", entryId)
@@ -115,9 +114,10 @@ class ShowActivity : AppCompatActivity() {
             true
         }
 
+        //Delete Entry
         R.id.action_delete -> {
             var entryDao = MyDatabase.getDatabase(applicationContext)!!.entryDao()
-            var entry:Entry? = entryDao.loadById(entryId)
+            var entry: Entry? = entryDao.loadById(entryId)
             if (entry != null) {
                 entryDao.delete(entry)
             }
@@ -127,8 +127,6 @@ class ShowActivity : AppCompatActivity() {
         }
 
         else -> {
-            // If we got here, the user's action was not recognized.
-            // Invoke the superclass to handle it.
             super.onOptionsItemSelected(item)
         }
     }
