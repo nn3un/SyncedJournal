@@ -22,11 +22,11 @@ import com.example.nnuzaba47.syncedjournal.R
 import java.io.InputStream
 import java.net.URL
 
-class PostAdapterForEditActivity: RecyclerView.Adapter<PostAdapterForEditActivity.PostViewHolder> {
+class PostAdapter: RecyclerView.Adapter<PostAdapter.PostViewHolder> {
 
     var items: ArrayList<Post> = ArrayList()
     private val mInflater: LayoutInflater
-    var postIdToDescriptionMap = HashMap<Long, EditText>()
+    //var postIdToDescriptionMap = HashMap<Long, EditText>()
 
     constructor(context: Context) {
         mInflater = LayoutInflater.from(context)
@@ -34,14 +34,17 @@ class PostAdapterForEditActivity: RecyclerView.Adapter<PostAdapterForEditActivit
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val item = items[position]
+
+        //Set up the source link
         val content = SpannableString("Source URL")
         content.setSpan(UnderlineSpan(), 0, content.length, 0)
         holder.sourceURL.text = content
         holder.sourceURL.setOnClickListener {
             ContextCompat.startActivity(it.context, Intent(Intent.ACTION_VIEW, Uri.parse(item.sourceURL)), null)
         }
-        holder.description.setText(item.description)
 
+        //If the description is changed by the user, update the original post
+        holder.description.setText(item.description)
         holder.description.addTextChangedListener(object : TextWatcher{
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 item.description = p0.toString()
@@ -54,15 +57,18 @@ class PostAdapterForEditActivity: RecyclerView.Adapter<PostAdapterForEditActivit
             }
 
         })
+
+        //Set image
         var asyncTask = holder.SetImageInBackground()
         asyncTask.execute(item.imageURL)
-        postIdToDescriptionMap[item.postId!!] = holder.description
+
+        //Delete post listener
         holder.deleteNewPost.setOnClickListener{
             var index = items.indexOf(item)
             items!!.removeAt(index)
             notifyItemRemoved(index)
             notifyItemRangeChanged(index, items.size)
-            postIdToDescriptionMap.remove(item.postId!!)
+            //postIdToDescriptionMap.remove(item.postId!!)
         }
     }
 

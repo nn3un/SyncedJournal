@@ -16,10 +16,9 @@ import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.example.nnuzaba47.syncedjournal.Adapter.PostAdapterForEditActivity
+import com.example.nnuzaba47.syncedjournal.Adapter.PostAdapter
 import com.example.nnuzaba47.syncedjournal.Database.MyDatabase
 import com.example.nnuzaba47.syncedjournal.Database.PostDao
-import com.example.nnuzaba47.syncedjournal.Database.PostViewModel
 import com.example.nnuzaba47.syncedjournal.POJO.Entry
 import com.example.nnuzaba47.syncedjournal.POJO.InstagramResponseObject
 import com.example.nnuzaba47.syncedjournal.POJO.Post
@@ -42,7 +41,7 @@ class EditActivity : AppCompatActivity() {
 
     var postDao: PostDao? = null
     private var postsInDB: List<Post> ?= null
-    private var adapter: PostAdapterForEditActivity?= null
+    private var adapter: PostAdapter?= null
 
     private var loginManager = LoginManager.getInstance()!!    //Handles facebook login
     private var callbackManager = CallbackManager.Factory.create()!!  //Handles the facebook login callback
@@ -85,7 +84,7 @@ class EditActivity : AppCompatActivity() {
                 etEditEntryDescription.setText(entry!!.description)
 
                 //set up adapter
-                adapter = PostAdapterForEditActivity(this)
+                adapter = PostAdapter(this)
                 postsInDB = postDao!!.loadPostsForEntry(entryId)
                 adapter!!.setPosts(ArrayList(postsInDB))
                 rvEditPosts.adapter = adapter

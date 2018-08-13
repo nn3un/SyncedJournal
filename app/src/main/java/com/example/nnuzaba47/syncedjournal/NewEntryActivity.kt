@@ -3,14 +3,12 @@ package com.example.nnuzaba47.syncedjournal
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.text.TextUtils
 import android.view.View
-import android.widget.EditText
 import android.widget.Toast
 import com.facebook.*
 import java.util.*
@@ -23,19 +21,14 @@ import org.json.JSONObject
 import java.text.SimpleDateFormat
 import kotlin.collections.ArrayList
 import android.app.DatePickerDialog
-import android.content.DialogInterface
-import android.graphics.Color
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Button
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.example.nnuzaba47.syncedjournal.Adapter.PostAdapterForNewEntryActivity
-import com.example.nnuzaba47.syncedjournal.Database.EntryViewModel
+import com.example.nnuzaba47.syncedjournal.Adapter.PostAdapter
 import com.example.nnuzaba47.syncedjournal.Database.MyDatabase
-import com.example.nnuzaba47.syncedjournal.Database.PostViewModel
 import com.example.nnuzaba47.syncedjournal.POJO.Entry
 import com.example.nnuzaba47.syncedjournal.POJO.InstagramResponseObject
 import com.example.nnuzaba47.syncedjournal.POJO.Post
@@ -47,7 +40,7 @@ class NewEntryActivity : AppCompatActivity() {
     private var callbackManager = CallbackManager.Factory.create()!!  //Handles the facebook login callback
     private var loginManager = LoginManager.getInstance()!!    //Handles facebook login
     private var posts: ArrayList<Post> = ArrayList()    //An empty list to contain the new post
-    private var postAdapter: PostAdapterForNewEntryActivity? = null  //The post adapter that will display the posts
+    private var postAdapter: PostAdapter? = null  //The post adapter that will display the posts
     private var database: MyDatabase? = null
     private var sdf = SimpleDateFormat("MMM d, yyyy", Locale.US)
     private var entryDate: Date = Date()
@@ -75,7 +68,7 @@ class NewEntryActivity : AppCompatActivity() {
         //First we set up the views and database
         database = MyDatabase.getDatabase(applicationContext)
         //setting up the recyclerView
-        postAdapter = PostAdapterForNewEntryActivity(this)
+        postAdapter = PostAdapter(this)
         postAdapter!!.setPosts(posts)
         rvNewPosts.adapter = postAdapter
         rvNewPosts.layoutManager = LinearLayoutManager(this)
@@ -154,9 +147,6 @@ class NewEntryActivity : AppCompatActivity() {
             for (ind in 0 until postAdapter!!.itemCount) {
                 var post: Post = postAdapter!!.getPostAtPosition(ind)!!
 
-                //update the description of the post, as the user might have changed it to better describe their day
-                var etPostDescription: EditText = postAdapter!!.postToDescriptionMap[post]!!
-                post.description = etPostDescription.text.toString()
                 post.entryId = entryId  //update the post's entryId
                 database!!.postDao().insert(post)
             }
